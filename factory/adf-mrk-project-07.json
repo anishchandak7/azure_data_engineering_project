@@ -1,0 +1,9 @@
+{
+	"name": "adf-mrk-project-07",
+	"location": "australiaeast",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9dbe6293-b1d1-4e64-a13d-4d1fb64b9a11",
+		"tenantId": "50e669de-63ba-4101-9e7f-f2b9a5872fdf"
+	}
+}
