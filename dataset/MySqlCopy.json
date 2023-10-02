@@ -1,0 +1,12 @@
+{
+	"name": "MySqlCopy",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "MySql2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "MySqlTable",
+		"schema": []
+	}
+}
