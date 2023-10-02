@@ -1,0 +1,1162 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"factoryName": {
+			"type": "string",
+			"metadata": "Data Factory name",
+			"defaultValue": "adf-mrk-project-07"
+		},
+		"AzureDataLakeStorageGen2_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'AzureDataLakeStorageGen2'"
+		},
+		"MySql1_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MySql1'"
+		},
+		"MySql2_connectionString": {
+			"type": "secureString",
+			"metadata": "Secure string for 'connectionString' of 'MySql2'"
+		},
+		"AzureDataLakeStorageGen2_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://mrkprojectdatalakegen2.dfs.core.windows.net/"
+		}
+	},
+	"variables": {
+		"factoryId": "[concat('Microsoft.DataFactory/factories/', parameters('factoryName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('factoryName'), '/integrationRuntime1')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/AzureDataLakeStorageGen2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('AzureDataLakeStorageGen2_properties_typeProperties_url')]",
+					"accountKey": {
+						"type": "SecureString",
+						"value": "[parameters('AzureDataLakeStorageGen2_accountKey')]"
+					}
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySql1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MySql",
+				"typeProperties": {
+					"connectionString": "[parameters('MySql1_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySql2')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "MySql",
+				"typeProperties": {
+					"connectionString": "[parameters('MySql2_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "integrationRuntime1",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/integrationRuntimes/integrationRuntime1')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/DestinationDataset_o0e')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorageGen2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"cw_fileName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().cw_fileName",
+							"type": "Expression"
+						},
+						"fileSystem": "blobazuremysqlb1ed4c2511"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorageGen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySqlCopy')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MySql2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MySql2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySqlTables')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MySql2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MySql2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/SourceDataset_o0e')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MySql2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"cw_tableName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": {
+						"value": "@dataset().cw_tableName",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MySql2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/address_parquet')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorageGen2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "rawdata"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorageGen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/address_table')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "MySql2",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "MySqlTable",
+				"schema": [],
+				"typeProperties": {
+					"tableName": "`address`"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/MySql2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/parquetTables')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "AzureDataLakeStorageGen2",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaname": {
+						"type": "string"
+					},
+					"tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Parquet",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@(concat(dataset().tablename,'.parquet'))",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "@(concat(dataset().schemaname,'/', dataset().tablename))",
+							"type": "Expression"
+						},
+						"fileSystem": "bronze"
+					},
+					"compressionCodec": "snappy"
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorageGen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySQLToAzureDataLake')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy address table",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource"
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "address_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "address_parquet",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/address_table')]",
+				"[concat(variables('factoryId'), '/datasets/address_parquet')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/MySQLToDataFactoryPipeline')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach_o0e",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.cw_items",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy_o0e",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [
+										{
+											"name": "Source",
+											"value": "@{item().source.tableName}"
+										},
+										{
+											"name": "Destination",
+											"value": "blobazuremysqlb1ed4c2511//@{item().destination.fileName}"
+										}
+									],
+									"typeProperties": {
+										"source": {
+											"type": "MySqlSource"
+										},
+										"sink": {
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
+										},
+										"enableStaging": false,
+										"enableSkipIncompatibleRow": true,
+										"validateDataConsistency": true,
+										"logSettings": {
+											"enableCopyActivityLog": true,
+											"copyActivityLogSettings": {
+												"logLevel": "Warning",
+												"enableReliableLogging": false
+											},
+											"logLocationSettings": {
+												"linkedServiceName": {
+													"referenceName": "AzureDataLakeStorageGen2",
+													"type": "LinkedServiceReference"
+												},
+												"path": "blobazuremysqlb1ed4c2511"
+											}
+										},
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "SourceDataset_o0e",
+											"type": "DatasetReference",
+											"parameters": {
+												"cw_tableName": "@item().source.tableName"
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "DestinationDataset_o0e",
+											"type": "DatasetReference",
+											"parameters": {
+												"cw_fileName": "@item().destination.fileName"
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"cw_items": {
+						"type": "Array",
+						"defaultValue": [
+							{
+								"source": {
+									"tableName": "`address`"
+								},
+								"destination": {
+									"fileName": "`address`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`addresstype`"
+								},
+								"destination": {
+									"fileName": "`addresstype`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`awbuildversion`"
+								},
+								"destination": {
+									"fileName": "`awbuildversion`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`billofmaterials`"
+								},
+								"destination": {
+									"fileName": "`billofmaterials`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`contact`"
+								},
+								"destination": {
+									"fileName": "`contact`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`contactcreditcard`"
+								},
+								"destination": {
+									"fileName": "`contactcreditcard`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`contacttype`"
+								},
+								"destination": {
+									"fileName": "`contacttype`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`countryregion`"
+								},
+								"destination": {
+									"fileName": "`countryregion`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`countryregioncurrency`"
+								},
+								"destination": {
+									"fileName": "`countryregioncurrency`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`creditcard`"
+								},
+								"destination": {
+									"fileName": "`creditcard`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`culture`"
+								},
+								"destination": {
+									"fileName": "`culture`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`currency`"
+								},
+								"destination": {
+									"fileName": "`currency`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`currencyrate`"
+								},
+								"destination": {
+									"fileName": "`currencyrate`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`customer`"
+								},
+								"destination": {
+									"fileName": "`customer`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`customeraddress`"
+								},
+								"destination": {
+									"fileName": "`customeraddress`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`databaselog`"
+								},
+								"destination": {
+									"fileName": "`databaselog`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`department`"
+								},
+								"destination": {
+									"fileName": "`department`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`document`"
+								},
+								"destination": {
+									"fileName": "`document`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`employee`"
+								},
+								"destination": {
+									"fileName": "`employee`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`employeeaddress`"
+								},
+								"destination": {
+									"fileName": "`employeeaddress`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`employeedepartmenthistory`"
+								},
+								"destination": {
+									"fileName": "`employeedepartmenthistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`employeepayhistory`"
+								},
+								"destination": {
+									"fileName": "`employeepayhistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`errorlog`"
+								},
+								"destination": {
+									"fileName": "`errorlog`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`illustration`"
+								},
+								"destination": {
+									"fileName": "`illustration`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`individual`"
+								},
+								"destination": {
+									"fileName": "`individual`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`jobcandidate`"
+								},
+								"destination": {
+									"fileName": "`jobcandidate`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`location`"
+								},
+								"destination": {
+									"fileName": "`location`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`product`"
+								},
+								"destination": {
+									"fileName": "`product`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productcategory`"
+								},
+								"destination": {
+									"fileName": "`productcategory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productcosthistory`"
+								},
+								"destination": {
+									"fileName": "`productcosthistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productdescription`"
+								},
+								"destination": {
+									"fileName": "`productdescription`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productdocument`"
+								},
+								"destination": {
+									"fileName": "`productdocument`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productinventory`"
+								},
+								"destination": {
+									"fileName": "`productinventory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productlistpricehistory`"
+								},
+								"destination": {
+									"fileName": "`productlistpricehistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productmodel`"
+								},
+								"destination": {
+									"fileName": "`productmodel`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productmodelillustration`"
+								},
+								"destination": {
+									"fileName": "`productmodelillustration`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productmodelproductdescriptionculture`"
+								},
+								"destination": {
+									"fileName": "`productmodelproductdescriptionculture`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productphoto`"
+								},
+								"destination": {
+									"fileName": "`productphoto`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productproductphoto`"
+								},
+								"destination": {
+									"fileName": "`productproductphoto`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productreview`"
+								},
+								"destination": {
+									"fileName": "`productreview`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productsubcategory`"
+								},
+								"destination": {
+									"fileName": "`productsubcategory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`productvendor`"
+								},
+								"destination": {
+									"fileName": "`productvendor`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`purchaseorderdetail`"
+								},
+								"destination": {
+									"fileName": "`purchaseorderdetail`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`purchaseorderheader`"
+								},
+								"destination": {
+									"fileName": "`purchaseorderheader`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesorderdetail`"
+								},
+								"destination": {
+									"fileName": "`salesorderdetail`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesorderheader`"
+								},
+								"destination": {
+									"fileName": "`salesorderheader`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesorderheadersalesreason`"
+								},
+								"destination": {
+									"fileName": "`salesorderheadersalesreason`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesperson`"
+								},
+								"destination": {
+									"fileName": "`salesperson`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salespersonquotahistory`"
+								},
+								"destination": {
+									"fileName": "`salespersonquotahistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesreason`"
+								},
+								"destination": {
+									"fileName": "`salesreason`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salestaxrate`"
+								},
+								"destination": {
+									"fileName": "`salestaxrate`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesterritory`"
+								},
+								"destination": {
+									"fileName": "`salesterritory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`salesterritoryhistory`"
+								},
+								"destination": {
+									"fileName": "`salesterritoryhistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`scrapreason`"
+								},
+								"destination": {
+									"fileName": "`scrapreason`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`shift`"
+								},
+								"destination": {
+									"fileName": "`shift`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`shipmethod`"
+								},
+								"destination": {
+									"fileName": "`shipmethod`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`shoppingcartitem`"
+								},
+								"destination": {
+									"fileName": "`shoppingcartitem`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`specialoffer`"
+								},
+								"destination": {
+									"fileName": "`specialoffer`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`specialofferproduct`"
+								},
+								"destination": {
+									"fileName": "`specialofferproduct`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`stateprovince`"
+								},
+								"destination": {
+									"fileName": "`stateprovince`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`store`"
+								},
+								"destination": {
+									"fileName": "`store`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`storecontact`"
+								},
+								"destination": {
+									"fileName": "`storecontact`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`transactionhistory`"
+								},
+								"destination": {
+									"fileName": "`transactionhistory`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`transactionhistoryarchive`"
+								},
+								"destination": {
+									"fileName": "`transactionhistoryarchive`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`unitmeasure`"
+								},
+								"destination": {
+									"fileName": "`unitmeasure`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`vendor`"
+								},
+								"destination": {
+									"fileName": "`vendor`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`vendoraddress`"
+								},
+								"destination": {
+									"fileName": "`vendoraddress`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`vendorcontact`"
+								},
+								"destination": {
+									"fileName": "`vendorcontact`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`workorder`"
+								},
+								"destination": {
+									"fileName": "`workorder`.txt"
+								}
+							},
+							{
+								"source": {
+									"tableName": "`workorderrouting`"
+								},
+								"destination": {
+									"fileName": "`workorderrouting`.txt"
+								}
+							}
+						]
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2023-10-01T21:00:38Z"
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/SourceDataset_o0e')]",
+				"[concat(variables('factoryId'), '/datasets/DestinationDataset_o0e')]",
+				"[concat(variables('factoryId'), '/linkedServices/AzureDataLakeStorageGen2')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/copy_all_tables')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Look for all tables",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "MySqlSource",
+								"query": "SELECT table_schema AS SchemaName, table_name AS TableName\nFROM information_schema.tables\nWHERE table_schema = 'adventureworks';"
+							},
+							"dataset": {
+								"referenceName": "MySqlTables",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "ForEach Schema Table",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Look for all tables",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Look for all tables').output.value",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Copy each table",
+									"type": "Copy",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "MySqlSource",
+											"query": {
+												"value": "@(concat('SELECT * FROM ', item().SchemaName, '.', item().TableName))",
+												"type": "Expression"
+											}
+										},
+										"sink": {
+											"type": "ParquetSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "ParquetWriteSettings"
+											}
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "MySqlCopy",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "parquetTables",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": {
+													"value": "@item().SchemaName",
+													"type": "Expression"
+												},
+												"tablename": {
+													"value": "@item().TableName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/MySqlTables')]",
+				"[concat(variables('factoryId'), '/datasets/MySqlCopy')]",
+				"[concat(variables('factoryId'), '/datasets/parquetTables')]"
+			]
+		}
+	]
+}
