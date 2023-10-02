@@ -1,0 +1,19 @@
+{
+	"name": "address_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "AzureDataLakeStorageGen2",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "rawdata"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
