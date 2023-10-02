@@ -1,0 +1,6 @@
+{
+	"name": "MySQLToAzureDataLake",
+	"properties": {
+		"annotations": []
+	}
+}
