@@ -8,7 +8,7 @@
 		"AzureDataLakeStorageGen2_accountKey": {
 			"value": ""
 		},
-		"MySql1_connectionString": {
+		"AzureDatabricks1_accessToken": {
 			"value": ""
 		},
 		"MySql2_connectionString": {
@@ -16,6 +16,12 @@
 		},
 		"AzureDataLakeStorageGen2_properties_typeProperties_url": {
 			"value": "https://mrkprojectdatalakegen2.dfs.core.windows.net/"
+		},
+		"AzureDatabricks1_properties_typeProperties_existingClusterId": {
+			"value": "1004-182204-oxi4rkam"
+		},
+		"AzureKeyVault1_properties_typeProperties_baseUrl": {
+			"value": "https://kv-mrk-project-07.vault.azure.net/"
 		},
 		"containerUri": {
 			"value": ""
