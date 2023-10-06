@@ -901,11 +901,38 @@
 						}
 					},
 					{
-						"name": "bronze to silver",
+						"name": "mount containers",
 						"type": "DatabricksNotebook",
 						"dependsOn": [
 							{
 								"activity": "ForEach Schema Table",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebookPath": "/Shared/mount_storage"
+						},
+						"linkedServiceName": {
+							"referenceName": "AzureDatabricks1",
+							"type": "LinkedServiceReference"
+						}
+					},
+					{
+						"name": "bronze_to_silver",
+						"type": "DatabricksNotebook",
+						"dependsOn": [
+							{
+								"activity": "mount containers",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -928,11 +955,11 @@
 						}
 					},
 					{
-						"name": "silver to gold",
+						"name": "silver_to_gold",
 						"type": "DatabricksNotebook",
 						"dependsOn": [
 							{
-								"activity": "bronze to silver",
+								"activity": "bronze_to_silver",
 								"dependencyConditions": [
 									"Succeeded"
 								]
