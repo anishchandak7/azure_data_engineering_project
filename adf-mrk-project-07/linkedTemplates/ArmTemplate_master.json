@@ -17,7 +17,8 @@
 		},
 		"MySql2_connectionString": {
 			"type": "secureString",
-			"metadata": "Secure string for 'connectionString' of 'MySql2'"
+			"metadata": "Secure string for 'connectionString' of 'MySql2'",
+			"defaultValue": "Server=localhost;Port=3306;Database=adventureworks;User=root;SSLMode=1;UseSystemTrustStore=1"
 		},
 		"AzureDataLakeStorageGen2_properties_typeProperties_url": {
 			"type": "string",

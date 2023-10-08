@@ -12,7 +12,7 @@
 			"value": ""
 		},
 		"MySql2_connectionString": {
-			"value": ""
+			"value": "Server=localhost;Port=3306;Database=adventureworks;User=root;SSLMode=1;UseSystemTrustStore=1"
 		},
 		"AzureDataLakeStorageGen2_properties_typeProperties_url": {
 			"value": "https://mrkprojectdatalakegen2.dfs.core.windows.net/"
