@@ -5,3 +5,5 @@ Overall 4 notebooks were used for data transformation:
      * To transform all date fields in each table from the bronze layer and store at silver location.
 3. silver_to_gold.ipynb:
      * To rename the headers of all tables from silver layer, format it and store at gold location.
+4. data_check.ipynb:
+    * To analyze the data.
